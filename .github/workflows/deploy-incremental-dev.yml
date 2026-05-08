@@ -1,0 +1,66 @@
+name: DEV Incremental Deployment
+
+on:
+  push:
+    branches:
+      -   release/dev
+    paths:
+      -   "force-app/**"
+
+jobs:
+  deployment:
+    name: Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Self Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 20
+          
+      - name: Git Log
+        run: git log --oneline
+        
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version: 18.x
+          
+      - name: Install OCLIF Dependencies
+        run: |
+          npm install --global oclif
+          
+      - name: Install Salesforce CLI
+        run: |
+          npm install --global sfdx-cli@latest
+          
+      - name: Install sfdx-git-delta
+        run: |
+          echo y | sfdx plugins:install sfdx-git-delta
+          
+      - name: Authorize Salesforce Org
+        run: |
+          echo ${{ secrets.DEV_AUTH_URL }} | sf org login sfdx-url -s -u
+
+      - name: Get delta
+        run: |
+          sfdx sgd:source:delta --to "HEAD" --from "${{ vars.DEV_STARTCOMMIT }}"\
+          --output-dir "."\
+          --source-dir force-app/
+      - name: Package.xml
+        run: |
+          cat package/package.xml
+      - name: Destructive.xml
+        run: |
+          cat destructiveChanges/destructiveChanges.xml
+      - name: Deployment
+        run: |
+          sf project deploy start\
+          --manifest package/package.xml\
+          --post-destructive-changes destructiveChanges/destructiveChanges.xml\
+          -o ${{ vars.DEV_USERNAME }}
+      - name: Saving last successfull commit
+        run: |
+          gh variable set DEV_STARTCOMMIT --body "${{ github.sha }}" --env DEV
+        env:
+          GH_TOKEN: ${{ secrets.UPDATE_ENV_VAR }}
