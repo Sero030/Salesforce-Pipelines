@@ -40,7 +40,7 @@ jobs:
           
       - name: Authorize Salesforce Org
         run: |
-          echo ${{ secrets.DEV_AUTH_URL }} | sf org login sfdx-url -s -u
+          echo ${{ secrets.DEV_AUTH_URL }} | sf org login sfdx-url -s -u dev
 
       - name: Get delta
         run: |
