@@ -1,0 +1,63 @@
+name: DEV Incremental Validate
+
+on:
+  pull_request:
+    branches:
+      -   release/dev
+    paths:
+      -   "force-app/**"
+
+jobs:
+  validation:
+    name: Validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Self Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 20
+          
+      - name: Git Log
+        run: git log --oneline
+        
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .node-version
+          
+      - name: Install OCLIF Dependencies
+        run: |
+          npm install --global oclif
+          
+      - name: Install Salesforce CLI
+        run: |
+          npm install --global sfdx-cli@latest
+          
+      - name: Install sfdx-git-delta
+        run: |
+          echo y | sfdx plugins:install sfdx-git-delta
+          
+      - name: Authorize Salesforce Org
+        run: |
+          echo ${{ secrets.DEV_AUTH_URL }} | sf org login sfdx-url -s -u
+
+      - name: Get delta
+        run: |
+          sfdx sgd:source:delta --to "HEAD" --from "${{ vars.DEV_STARTCOMMIT }}"\
+          --output-dir "."\
+          --source-dir force-app/
+      - name: Package.xml
+        run: |
+          cat package/package.xml
+      - name: Destructive.xml
+        run: |
+          cat destructiveChanges/destructiveChanges.xml
+      - name: Validation
+        run: |
+          sf project deploy start\
+          --manifest package/package.xml\
+          --post-destructive-changes destructiveChanges/destructiveChanges.xml\
+          --test-level ${{ vars.DEV_TESTLEVEL }}\
+          -o ${{ vars.DEV_USERNAME }}\
+          --dry-run 
