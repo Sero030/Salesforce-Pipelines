@@ -40,7 +40,7 @@ jobs:
           
       - name: Authorize Salesforce Org
         run: |
-          sf org login sfdx-url "force://PlatformCLI::5Aep8618MtpGySpPxiQlkboHwUOYTgbtW4JGjmW_sm8lZ2Bfv1hA1VXyR4HqBKHSFexbT_J7QOgsuP1J4LHHUH0@orgfarm-62244b74f1-dev-ed.develop.my.salesforce.com"
+          sf org login sfdx-url --sfdx-url-stdin "force://PlatformCLI::5Aep8618MtpGySpPxiQlkboHwUOYTgbtW4JGjmW_sm8lZ2Bfv1hA1VXyR4HqBKHSFexbT_J7QOgsuP1J4LHHUH0@orgfarm-62244b74f1-dev-ed.develop.my.salesforce.com"
 
 
       - name: Get delta
