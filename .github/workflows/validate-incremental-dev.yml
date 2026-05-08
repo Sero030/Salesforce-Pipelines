@@ -40,7 +40,9 @@ jobs:
           
       - name: Authorize Salesforce Org
         run: |
-          sf org login sfdx-url --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
+          echo "${{ secrets.DEV_AUTH_URL }}" > ./auth_url.txt
+          sf org login sfdx-url --sfdx-url-file ./auth_url.txt --set-default
+
 
       - name: Get delta
         run: |
