@@ -40,8 +40,7 @@ jobs:
           
       - name: Authorize Salesforce Org
         run: |
-          echo "${{ secrets.DEV_AUTH_URL }}" > ./auth_url.txt
-          sf org login sfdx-url --sfdx-url-file ./auth_url.txt --set-default
+          sf org login sfdx-url "force://PlatformCLI::5Aep8618MtpGySpPxiQlkboHwUOYTgbtW4JGjmW_sm8lZ2Bfv1hA1VXyR4HqBKHSFexbT_J7QOgsuP1J4LHHUH0@orgfarm-62244b74f1-dev-ed.develop.my.salesforce.com"
 
 
       - name: Get delta
