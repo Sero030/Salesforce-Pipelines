@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
-          node-version-file: .node-version
+          node-version: 18.x
           
       - name: Install OCLIF Dependencies
         run: |
